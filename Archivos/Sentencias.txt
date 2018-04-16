@@ -1,0 +1,3 @@
+/* sabee */
+select * from mytabla
+where mytabla.campo = 20
