@@ -1,3 +1,4 @@
-/* sabee */
-select * from mytabla
-where mytabla.campo = 20
+/* comment */
+select * from  mytabla 
+where a < 2.5
+group by

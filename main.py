@@ -11,18 +11,25 @@ TOKENS = (
     ('P_WHERE', re.compile('WHERE|where')),
     ('P_INTO', re.compile('INTO|into')),
     ('P_VALUES', re.compile('VALUES|values')),
+    ('P_SET', re.compile('SET|set')),
     ('P_ON', re.compile('ON|on')),
     ('P_IN', re.compile('IN|in')),
+    ('P_JOIN', re.compile('JOIN|join')),
     ('P_INER', re.compile('INER|iner')),
     ('P_LEFT', re.compile('LEFT|left')),
-    ('P_RIGHT', re.compile('RIGHT|right')),
+    ('P_RIGHT', re.compile('RIGHT|right')), 
+    ('P_GROUP_BY', re.compile('GROUP BY|group by')),
     ('T_INT', re.compile('INTEGER|integer')),
     ('S_ASTER', re.compile('\*')),
     ('S_COMA', re.compile(',')),
     ('S_PUNTO', re.compile('\.')),
+    ('OP_AND', re.compile('AND|and')),
+    ('OP_OR', re.compile('OR|or')),
+    ('OP_NOT', re.compile('NOT|not')),
     ('OP_RELA', re.compile('=|<|>|<=|>=|<>')),
     ('OP_ARIT', re.compile('\+|-|/|%')),
-    ('NUMB', re.compile('[0-9]+')),
+    ('NUMB_FLOAT', re.compile('[0-9]+.[0-9]+')),
+    ('NUMB_INT', re.compile('[0-9]+')),
     ('VAR', re.compile('[a-zA-Z0-9]+$'))
 )
 
@@ -45,7 +52,6 @@ def main():
         for word in line.split():
             palabras.append(word)
             linea.append(l)
-            print(word)
         l = l+1
 
     palabras2 = []
@@ -78,7 +84,7 @@ def main():
         l = linea2[i];
         if hay_punto.match(palabras2[i]):
             cont = 0
-            for j in palabras2[i].split("."):
+            for j in palabras2[i].split("."):#Agregar exepcion para numeros decimales
                 palabras3.append(j)
                 linea3.append(l)
                 cont += 1
@@ -120,12 +126,46 @@ def main():
         palabras4 = p4
         linea4 = l4
 
+    #juntar elemento separados
+    numbcheck = re.compile('[0-9]+')
+    FinalList = []
+    saltador = -1
+    for i in range(0, len(palabras4)-2):
+        if i > saltador:
+            a = palabras4[i]
+            b = palabras4[i + 1]
+            c = palabras4[i + 2]
+            frase = False
+            endwhitfrase = False
+            if numbcheck.match(a) and b == "." and numbcheck.match(c):
+                FinalList.append(a+b+c)
+                saltador = i+2
+                frase = True
+                if i == len(palabras4)-3:
+                    endwhitfrase = True
+            elif a == "GROUP" and b == "BY":
+                FinalList.append(a+' '+b)
+                saltador = i+1
+                frase = True
+                if i == len(palabras4)-2:
+                    FinalList.append(c)
+                    endwhitfrase = True
+            elif frase == False:
+                FinalList.append(a)
+            elif i == len(palabras4)-3 and endwhitfrase == False:
+                FinalList.append(b)
+                FinalList.append(c)
+    for w in FinalList:
+        print(w)
+
+
     iterador = Nodo("inicio","inicio",0)
     tnode = TSNodo("inicio", "inicio", 0)
     TablaSimbolos = tnode
     Lista = iterador
     #only one in varialbles
     variables = []
+    palabras4 = FinalList
     #creador de la lista y TS
     for lex in range(0,len(palabras4)):
         lexema = palabras4[lex]
@@ -152,9 +192,10 @@ def main():
 
     Lista.PrintLista()
     TablaSimbolos.PrintTable()
+    for i in range(0,10):
+        print(i)
+        i = i+2
 
-    stest = "="
-    print( stest.split("="))
 
 
 if __name__ == '__main__':
