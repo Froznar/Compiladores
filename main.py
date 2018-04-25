@@ -17,8 +17,10 @@ TOKENS = (
     ('P_JOIN', re.compile('JOIN|join')),
     ('P_INER', re.compile('INER|iner')),
     ('P_LEFT', re.compile('LEFT|left')),
-    ('P_RIGHT', re.compile('RIGHT|right')), 
+    ('P_RIGHT', re.compile('RIGHT|right')),
+    ('P_HAVING', re.compile('HAVING|having')),
     ('P_GROUP_BY', re.compile('GROUP BY|group by')),
+    ('P_ORDER_BY', re.compile('ORDER BY|order by')),
     ('T_INT', re.compile('INTEGER|integer')),
     ('S_ASTER', re.compile('\*')),
     ('S_COMA', re.compile(',')),
@@ -30,6 +32,7 @@ TOKENS = (
     ('OP_ARIT', re.compile('\+|-|/|%')),
     ('NUMB_FLOAT', re.compile('[0-9]+.[0-9]+')),
     ('NUMB_INT', re.compile('[0-9]+')),
+    ('NUMB_CHAR', re.compile('"[a-zA-Z0-9]+"')),
     ('VAR', re.compile('[a-zA-Z0-9]+$'))
 )
 
@@ -42,7 +45,7 @@ def main():
 
 
 
-    data = open('D:\Francisco\python proyects\Compiladores\Archivos\Refined.txt')
+    data = open('Archivos/Refined.txt')
     palabras = []
     linea = []
 
@@ -53,6 +56,9 @@ def main():
             palabras.append(word)
             linea.append(l)
         l = l+1
+
+    for l in palabras:
+        print(l)
 
     palabras2 = []
     linea2 = []
@@ -97,6 +103,7 @@ def main():
 
     palabras4 = palabras3
     linea4 = linea3
+
     op_relacionales = ("=","<",">","<=",">=","<>")
 
     for op in op_relacionales:
@@ -125,7 +132,8 @@ def main():
                 l4.append(l)
         palabras4 = p4
         linea4 = l4
-
+    for l in palabras4:
+        print(l)
     #juntar elemento separados
     numbcheck = re.compile('[0-9]+')
     FinalList = []
@@ -143,7 +151,14 @@ def main():
                 frase = True
                 if i == len(palabras4)-3:
                     endwhitfrase = True
-            elif a == "GROUP" and b == "BY":
+            elif (a == "GROUP" and b == "BY") or (a == "group" and b == "by"):
+                FinalList.append(a+' '+b)
+                saltador = i+1
+                frase = True
+                if i == len(palabras4)-2:
+                    FinalList.append(c)
+                    endwhitfrase = True
+            elif (a == "ORDER" and b == "BY") or (a == "order" and b == "by"):
                 FinalList.append(a+' '+b)
                 saltador = i+1
                 frase = True
@@ -192,18 +207,16 @@ def main():
 
     Lista.PrintLista()
     TablaSimbolos.PrintTable()
-    for i in range(0,10):
-        print(i)
-        i = i+2
+
 
 
 
 if __name__ == '__main__':
 
     # PREPROSESAMINETO
-    refined = open('D:\Francisco\python proyects\Compiladores\Archivos\Refined.txt', "w")
+    refined = open('Archivos/Refined.txt', "w")
 
-    with open('D:\Francisco\python proyects\Compiladores\Archivos\Sentencias.txt') as fileobj:
+    with open('Archivos/Sentencias.txt') as fileobj:
         bigcomment = False
         bc = 0
         lastline = False

@@ -1,4 +1,21 @@
 /* comment */
-select * from  mytabla 
-where a < 2.5
-group by
+select * from tabla
+gh
+
+8
+
+0
+0
+==
+90.89.
+where a<3
+a
+gh
+b mn kj
+
++
+~
+
+kl
+
+l
