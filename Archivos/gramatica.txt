@@ -1,0 +1,8 @@
+//Sentencia Select
+
+S   -> * P_FROM V | VC P_FROM V
+SS  -> S SS'
+SS' -> W | vacio
+
+W   -> P_WHERE W'
+W'  -> V OP_RELA N | N OP_RELA v | P_NOT W'

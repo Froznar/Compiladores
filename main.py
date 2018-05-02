@@ -36,6 +36,39 @@ TOKENS = (
     ('VAR', re.compile('[a-zA-Z0-9]+$'))
 )
 
+
+TABLA_SINTACTICA = (
+    ('@'    , 'P_SELECT'   , 'P_WHERE' , 'P_FROM' , 'OP_RELA', 'OP_NOT'  , 'S_COMA'    , 'S_ASTER'         ,'S_PUNTO'     ,   'VAR'        , 'NUMB_FLOAT'  ,'NUMB_INT'       , '$'),
+    ('SS'   , 'S SS2'      ,'','','','','','','',''),
+    ('SS2'  , ''          ,     'W'   ,'','','','','','','','','',''),
+    ('S'    , 'P_SELECT S2','','','','','','','','','','',''),
+    ('S2'   , ''           ,''         ,''        ,''        ,''         ,''           ,'S_ASTER P_FROM V' ,''            ,'VC P_FROM V'   ,'','',''),
+    ('W'    , ''           ,'P_WHERE'  ,'','','','','','','','',''),
+    ('W2'   , ''           ,''         ,''        ,''        ,'OP_NOT W2',''           ,''                 ,''            ,'VT OP_RELA N'    ,'N OP_RELA VT' ,  'N OP_RELA VT'  , ''),
+    ('V'    , ''           ,''         ,''        ,''        ,''         ,''           ,''                 ,''            ,'VAR'             ,''             ,''             ,''),
+    ('VP'   , ''           ,''         ,''        ,''        ,''         ,''           ,''                 ,''            ,'VAR S_PUNTO VAR' ,''             ,''             ,''),
+    ('VT'   , ''           ,''         ,''        ,''        ,''         ,''           ,''                 ,''            ,'VAR VT2'         ,''             ,''             ,''),
+    ('VT2'  , ''           ,''         ,''        ,''        ,''         ,''           ,''                 ,'S_PUNTO VAR' ,''                ,''             ,''             ,''),
+    ('VC'   , ''           ,''         ,''        ,''        ,''         ,''           ,''                 ,''            ,'VT VC2'          ,''             ,''             ,''),
+    ('VC2'  , ''           ,''         ,''        ,''        ,''         ,'S_COMA VC'  ,''                 ,''             ,''               ,''             ,''             ,''),
+    ('N'    , ''           ,''         ,''        ,''        ,''         ,''           ,''                 ,''             ,''               ,'NUM_FLOAT'    ,'NUM_INT'      ,''),
+)
+
+def locate_in_table(nt,t):
+    token=''
+    posx=0
+    posy=0
+    k=0
+    for x in TABLA_SINTACTICA[0]:
+        if t==x:
+            posx=k
+        k=k+1
+    k=0
+    for i in TABLA_SINTACTICA:
+        if t == i[0]:
+            posy=k
+
+    return token
 def main():
 
     # Simbolos que separar
@@ -165,9 +198,9 @@ def main():
                 if i == len(palabras4)-2:
                     FinalList.append(c)
                     endwhitfrase = True
-            elif frase == False:
+            if frase == False:
                 FinalList.append(a)
-            elif i == len(palabras4)-3 and endwhitfrase == False:
+            if i == len(palabras4)-3 and endwhitfrase == False:
                 FinalList.append(b)
                 FinalList.append(c)
     for w in FinalList:
@@ -208,7 +241,7 @@ def main():
     Lista.PrintLista()
     TablaSimbolos.PrintTable()
 
-
+##ANALISIS SINTACTICO
 
 
 if __name__ == '__main__':

@@ -1,21 +1,3 @@
 /* comment */
 select * from tabla
-gh
-
-8
-
-0
-0
-==
-90.89.
-where a<3
-a
-gh
-b mn kj
-
-+
-~
-
-kl
-
-l
+where mytabla.xd = 32
