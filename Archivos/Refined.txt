@@ -1,3 +1,2 @@
 
-select * from tabla
-where mytabla.xd = 32
+select * from mytabla where a < 30

@@ -1,8 +1,74 @@
-//Sentencia Select
+ALL  -> S | I | D | U
 
-S   -> * P_FROM V | VC P_FROM V
+//VARIABLES
+N   -> NUMB_INT OP_RELA N | NUMB_FLOAT OP_RELA N
+RAW -> NUMB_INT | NUMB_FLOAT | CHAR
+V   -> VAR
+VP  -> VAR VT
+VT  -> S_PUNTO V | vacio
+VC  -> VP VC'
+VC'  -> S_COMA VC | vacio
+
+//SELECT
+S   -> P_SELECT S'
+S'  -> S_ASTER P_FROM V | VP P_FROM V
 SS  -> S SS'
-SS' -> W | vacio
+SS' -> W | J | vacio
 
+//INSERT
+I  -> P_INSERT P_INTO V P_VALUES S_P_AB I' S_P_CE
+I' -> RAW II
+II -> S_COMA I' | vacio
+++NOTA: No se permiten campos vacios, por ello no es necesario indicar los campos
+
+//DELETE
+D  -> P_DELETE P_FROM V W
+
+//UPDATE
+U  -> P_UPDATE V P_SET U' W
+U' -> VT OP_RELA RAW UU
+UU -> S_COMA U' | vacio
+
+//WHERE
 W   -> P_WHERE W'
-W'  -> V OP_RELA N | N OP_RELA v | P_NOT W'
+W'  -> VT OP_RELA WW CON | WW OP_RELA VT CON | P_NOT W' CON
+CON -> AND W' | OR W' |vacio
+WW  -> N | CHAR
+
+++NOTA Las comparaciones se hacen de izquierda a derecha, no hay parentesis
+
+//INNER JOIN
+J  -> P_INNER P_JOIN V P_ON W'
+
+//MAS
+GROUP BY
+OPERACIONES CON VAR --> prob no
+
+
+
+TABLA_SINTACTICA = (
+     ('@'    , 'P_SELECT'   , 'P_INSERT'                                   , 'P_UPDATE'             , 'P_DELETE'           , 'P_WHERE'  , 'P_FROM'     , 'P_INTO'    , 'VALUES'   , 'P_SET'  , 'P_ON'    , 'P_JOIN'     , 'P_INNER'                 , 'OP_RELA' , 'OP_NOT'      , 'OP_AND'     , 'OP_OR'     , 'S_COMA'    , 'S_ASTER'         ,'S_PUNTO'          ,'S_P_AB'      ,'S_P_CE'            ,   'VAR'            , 'NUMB_FLOAT'      ,'NUMB_INT'          ,'CHAR'              , '$'),
+     ('S'    , 'C'          ,'I'                                           ,'U'                     ,'D'                   ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+A    ('SS'   , 'S SS2'      ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+B    ('SS2'  , ''           ,''                                            ,''                      ,''                    ,     'W'    ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+C    ('S'    , 'P_SELECT S2',''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+D    ('S2'   , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,'S_ASTER P_FROM V' ,''                 ,''            ,''                  ,'VC P_FROM V'       ,''                 ,''                  ,''                  ,''  ),
+E    ('W'    , ''           ,''                                            ,''                      ,''                    ,'P_WHERE W2',''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+F    ('W2'   , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,'OP_NOT W2 CON',''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VT OP_RELA WW CON' ,'WW OP_RELA VT CON','WW OP_RELA VT CON' ,'WW OP_RELA VT CON' ,''  ),
+G    ('WW'   , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,'N'                ,'N'                 ,'CHAR'              ,''  ),
+H    ('CON'  , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,'AND W2'      ,'OR W2'      ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+I    ('V'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           , ''                        ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VAR'               ,''                 ,''                  ,''                  ,''  ),
+J    ('VP'   , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VAR VT'            ,''                 ,''                  ,''                  ,''  ),
+K    ('VT'   , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,'vacio'    ,''             ,''            ,''           ,''           ,''                 ,'S_PUNTO VAR'      ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+L    ('VC'   , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VP VC2'            ,''                 ,''                  ,''                  ,''  ),
+M    ('VC2'  , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,''            ,''           ,'S_COMA VC'  ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+N    ('N'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,'NUM_FLOAT'        ,'NUM_INT'           ,''                  ,''  ),
+O    ('RAW'  , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,'NUM_FLOAT'        ,'NUM_INT'           ,'CHAR'              ,''  ),
+P    ('I'    , ''           ,'P_INSERT P_INTO V P_VALUES S_P_AB I2 S_P_CE' ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,'RAW II'           ,'RAW II'            ,'RAW II'            ,''  ),
+Q    ('I2'   , 'P_SELECT S2',''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+R    ('II'   , 'P_SELECT S2',''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,'S_COMA I2'  ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+T    ('D'    , ''           ,''                                            ,''                      ,'P_DELETE P_FROM V W' ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+U    ('U'    , ''           ,''                                            ,'P_UPDATE V P_SET U2 W' ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+V    ('U2'   , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VT OP_RELA RAW UU' ,''                 ,''                  ,''                  ,''  ),
+W    ('UU'   , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,'S_COMA U2'  ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+X    ('J'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,'P_INNER P_JOIN V P_ON W2' ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),

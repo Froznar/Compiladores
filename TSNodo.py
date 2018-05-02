@@ -14,3 +14,4 @@ class TSNodo:
             print(TSNode.lexsema,"|", TSNode.valor,"|", TSNode.tipo)
             TSNode = TSNode.next  # move on to the next nod
 
+

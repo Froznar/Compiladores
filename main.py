@@ -1,10 +1,11 @@
 import re
 from Nodo import Nodo
 from TSNodo import TSNodo
+from pila import pila
 
 TOKENS = (
     ('P_SELECT', re.compile('SELECT|select')),
-    ('P_INSER', re.compile('INSERT|insert')),
+    ('P_INSERT', re.compile('INSERT|insert')),
     ('P_UPDATE', re.compile('UPDATE|update')),
     ('P_DELETE', re.compile('DELETE|delete')),
     ('P_FROM', re.compile('FROM|from')),
@@ -15,16 +16,17 @@ TOKENS = (
     ('P_ON', re.compile('ON|on')),
     ('P_IN', re.compile('IN|in')),
     ('P_JOIN', re.compile('JOIN|join')),
-    ('P_INER', re.compile('INER|iner')),
-    ('P_LEFT', re.compile('LEFT|left')),
-    ('P_RIGHT', re.compile('RIGHT|right')),
-    ('P_HAVING', re.compile('HAVING|having')),
-    ('P_GROUP_BY', re.compile('GROUP BY|group by')),
-    ('P_ORDER_BY', re.compile('ORDER BY|order by')),
-    ('T_INT', re.compile('INTEGER|integer')),
+    ('P_INNER', re.compile('INER|iner')),
+##    ('P_LEFT', re.compile('LEFT|left')),
+##    ('P_RIGHT', re.compile('RIGHT|right')),
+##    ('P_HAVING', re.compile('HAVING|having')),
+##    ('P_GROUP_BY', re.compile('GROUP BY|group by')),
+##    ('P_ORDER_BY', re.compile('ORDER BY|order by')),    
     ('S_ASTER', re.compile('\*')),
     ('S_COMA', re.compile(',')),
     ('S_PUNTO', re.compile('\.')),
+    ('S_P_AB', re.compile('\(')),
+    ('S_P_CE', re.compile('\)')),
     ('OP_AND', re.compile('AND|and')),
     ('OP_OR', re.compile('OR|or')),
     ('OP_NOT', re.compile('NOT|not')),
@@ -32,43 +34,85 @@ TOKENS = (
     ('OP_ARIT', re.compile('\+|-|/|%')),
     ('NUMB_FLOAT', re.compile('[0-9]+.[0-9]+')),
     ('NUMB_INT', re.compile('[0-9]+')),
-    ('NUMB_CHAR', re.compile('"[a-zA-Z0-9]+"')),
+    ('CHAR', re.compile('"[a-zA-Z0-9]+"')),
     ('VAR', re.compile('[a-zA-Z0-9]+$'))
 )
 
 
 TABLA_SINTACTICA = (
-    ('@'    , 'P_SELECT'   , 'P_WHERE' , 'P_FROM' , 'OP_RELA', 'OP_NOT'  , 'S_COMA'    , 'S_ASTER'         ,'S_PUNTO'     ,   'VAR'        , 'NUMB_FLOAT'  ,'NUMB_INT'       , '$'),
-    ('SS'   , 'S SS2'      ,'','','','','','','',''),
-    ('SS2'  , ''          ,     'W'   ,'','','','','','','','','',''),
-    ('S'    , 'P_SELECT S2','','','','','','','','','','',''),
-    ('S2'   , ''           ,''         ,''        ,''        ,''         ,''           ,'S_ASTER P_FROM V' ,''            ,'VC P_FROM V'   ,'','',''),
-    ('W'    , ''           ,'P_WHERE'  ,'','','','','','','','',''),
-    ('W2'   , ''           ,''         ,''        ,''        ,'OP_NOT W2',''           ,''                 ,''            ,'VT OP_RELA N'    ,'N OP_RELA VT' ,  'N OP_RELA VT'  , ''),
-    ('V'    , ''           ,''         ,''        ,''        ,''         ,''           ,''                 ,''            ,'VAR'             ,''             ,''             ,''),
-    ('VP'   , ''           ,''         ,''        ,''        ,''         ,''           ,''                 ,''            ,'VAR S_PUNTO VAR' ,''             ,''             ,''),
-    ('VT'   , ''           ,''         ,''        ,''        ,''         ,''           ,''                 ,''            ,'VAR VT2'         ,''             ,''             ,''),
-    ('VT2'  , ''           ,''         ,''        ,''        ,''         ,''           ,''                 ,'S_PUNTO VAR' ,''                ,''             ,''             ,''),
-    ('VC'   , ''           ,''         ,''        ,''        ,''         ,''           ,''                 ,''            ,'VT VC2'          ,''             ,''             ,''),
-    ('VC2'  , ''           ,''         ,''        ,''        ,''         ,'S_COMA VC'  ,''                 ,''             ,''               ,''             ,''             ,''),
-    ('N'    , ''           ,''         ,''        ,''        ,''         ,''           ,''                 ,''             ,''               ,'NUM_FLOAT'    ,'NUM_INT'      ,''),
+    ('@'    , 'P_SELECT'   , 'P_INSERT'                                   , 'P_UPDATE'             , 'P_DELETE'           , 'P_WHERE'  , 'P_FROM'     , 'P_INTO'    , 'VALUES'   , 'P_SET'  , 'P_ON'    , 'P_JOIN'     , 'P_INNER'                 , 'OP_RELA' , 'OP_NOT'      , 'OP_AND'     , 'OP_OR'     , 'S_COMA'    , 'S_ASTER'         ,'S_PUNTO'          ,'S_P_AB'      ,'S_P_CE'            ,   'VAR'            , 'NUMB_FLOAT'      ,'NUMB_INT'          ,'CHAR'              , '$'),
+    ('S'    , 'A'          ,'P'                                           ,'U'                     ,'T'                   ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('A'    , 'C B'        ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('B'    , ''           ,''                                            ,''                      ,''                    ,     'E'    ,''            ,''           ,''          ,''        ,''         ,''            ,'X'                        ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('C'    , 'P_SELECT D' ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('D'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,'S_ASTER P_FROM I' ,''                 ,''            ,''                  ,'J P_FROM I'        ,''                 ,''                  ,''                  ,''  ),
+    ('E'    , ''           ,''                                            ,''                      ,''                    ,'P_WHERE F' ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('F'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,'OP_NOT F H'   ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'J OP_RELA G H'     ,'G OP_RELA J H'    ,'G OP_RELA J H'     ,'G OP_RELA J H'     ,''  ),
+    ('G'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,'N'                ,'N'                 ,'CHAR'              ,''  ),
+    ('H'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,'AND F'       ,'OR F'       ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,'vacio'  ),
+    ('I'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           , ''                        ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VAR'               ,''                 ,''                  ,''                  ,''  ),
+    ('J'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VAR K'            ,''                 ,''                  ,''                  ,''  ),
+    ('K'    , ''           ,''                                            ,''                      ,''                    ,''          ,'vacio'       ,''           ,''          ,''        ,''         , ''           ,''                         ,'vacio'    ,''             ,''            ,''           ,''           ,''                 ,'S_PUNTO VAR'      ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('L'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'J M  '             ,''                 ,''                  ,''                  ,''  ),
+    ('M'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,''            ,''           ,'S_COMA L'   ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('N'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,'NUM_FLOAT'        ,'NUM_INT'           ,''                  ,''  ),
+    ('O'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,'NUM_FLOAT'        ,'NUM_INT'           ,'CHAR'              ,''  ),
+    ('P'    , ''           ,'P_INSERT P_INTO I P_VALUES S_P_AB Q S_P_CE'  ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,'O R'              ,'O R'               ,'O R'               ,''  ),
+    ('Q'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('R'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,'S_COMA Q'   ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('T'    , ''           ,''                                            ,''                      ,'P_DELETE P_FROM I E' ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('U'    , ''           ,''                                            ,'P_UPDATE I P_SET V E'  ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('V'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VT OP_RELA O W'    ,''                 ,''                  ,''                  ,''  ),
+    ('W'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,'S_COMA V'   ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('X'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,'P_INNER P_JOIN I P_ON F'  ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
 )
 
-def locate_in_table(nt,t):
-    token=''
+end = False
+
+def locate_in_table(nt,t):    
     posx=0
     posy=0
     k=0
     for x in TABLA_SINTACTICA[0]:
-        if t==x:
+        if t == x:            
             posx=k
+            break
         k=k+1
     k=0
     for i in TABLA_SINTACTICA:
-        if t == i[0]:
+        if nt == i[0]:
             posy=k
+        k=k+1
 
-    return token
+    if TABLA_SINTACTICA[posy][posx] == '':
+        return 'ERROR'
+    else:
+        return TABLA_SINTACTICA[posy][posx]
+
+id = 0
+
+def add_in_pila(express, mistokens, xpila, noterminal):    
+    global id
+    if id < len(mistokens)-1 :
+       # print('ELEMENTO ',express)
+        for s in express.split(' '):
+            xpila.xpush(s)
+            if not xpila.estaVacia():                
+                if len(s) == 1:
+                    express = locate_in_table(s,mistokens[id])
+                    add_in_pila(express, mistokens, xpila, s)
+                elif xpila.last() == 'vacio':
+                    print('correcto: ',xpila.xpop())
+                elif xpila.last() == mistokens[id]:
+                    print('correcto: ',xpila.xpop())
+                    id = id+1                            
+                else:
+                    print('Error de sintaxis en el token: ', mistokens[id])
+                    id = id+1
+
+    
+
+
 def main():
 
     # Simbolos que separar
@@ -206,7 +250,7 @@ def main():
     for w in FinalList:
         print(w)
 
-
+    continuar_sintatico = True
     iterador = Nodo("inicio","inicio",0)
     tnode = TSNodo("inicio", "inicio", 0)
     TablaSimbolos = tnode
@@ -235,15 +279,47 @@ def main():
             else:
                 error = True
         if error == True:
-            print("ERROR: valor >> ", lexema, " << no encontrado")
+            print("ERROR en la linea: ", linea," con el valor >> ", lexema, " << no encontrado")
+            continuar_sintatico = False
 
 
     Lista.PrintLista()
     TablaSimbolos.PrintTable()
 
+    xpila = pila()
+
+    
+    x = Lista.next
+    mistokens = []
+    while x!=None:
+        mistokens.append(x.token)
+        x=x.next;
+    for i in mistokens:
+        print(i)
+    print("==============================")       
+
+ 
+
+    if continuar_sintatico == True:
+        it = Lista
+        noterminal = 'S'
+        it = Lista.next
+        express = locate_in_table(noterminal,mistokens[0])
+        if express == 'ERROR':
+            print ('Error: no es posible accesar ',noterminal,' hacia ', mistokens[0])
+        else:
+            add_in_pila(express, mistokens, xpila, noterminal)
+
+
+
+
+        
+
+
+
+
+
 ##ANALISIS SINTACTICO
-
-
 if __name__ == '__main__':
 
     # PREPROSESAMINETO

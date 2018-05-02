@@ -19,6 +19,9 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="pila.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="TSNodo.py">
       <SubType>Code</SubType>
     </Compile>
@@ -33,6 +36,7 @@
     <Folder Include="Archivos\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Archivos\gramatica.txt" />
     <Content Include="Archivos\Sentencias.txt" />
     <Content Include="Archivos\Refined.txt" />
   </ItemGroup>
