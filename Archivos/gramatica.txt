@@ -6,13 +6,13 @@ N   -> NUMB_INT OP_RELA N | NUMB_FLOAT OP_RELA N
 RAW -> NUMB_INT | NUMB_FLOAT | CHAR
 V   -> VAR
 VP  -> VAR VT
-VT  -> S_PUNTO VAR | vacio//cambio vp-var
+VT  -> S_PUNTO VAR | vacio//cambio vp-var(echo)
 VC  -> VP VC'
 VC'  -> S_COMA VC | vacio
 
 //SELECT
 S   -> P_SELECT S'
-S'  -> S_ASTER P_FROM V | VC P_FROM V//cambio vp-vc
+S'  -> S_ASTER P_FROM V | VC P_FROM V//
 SS  -> S SS'
 SS' -> W | J | vacio
 
@@ -32,9 +32,9 @@ UU -> S_COMA U' | vacio
 
 //WHERE
 W   -> P_WHERE W'
-W'  -> VT OP_RELA WW CON | WW OP_RELA VT CON | P_NOT W' CON
+W'  -> VP OP_RELA RAW CON | RAW OP_RELA VP CON | P_NOT W' CON //cambiar VT por VP
 CON -> AND W' | OR W' |vacio
-WW  -> N | CHAR //remplazar con RAW
+QUITADO WW  -> N | CHAR //remplazar con RAW
 
     $ si es un operador aritmetico el valor debe ser numerico
     $ si es  "=" solo compara
@@ -71,7 +71,7 @@ B    ('SS2'  , ''           ,''                                            ,''  
 C    ('S'    , 'P_SELECT S2',''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
 D    ('S2'   , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,'S_ASTER P_FROM V' ,''                 ,''            ,''                  ,'VC P_FROM V'       ,''                 ,''                  ,''                  ,''  ),
 E    ('W'    , ''           ,''                                            ,''                      ,''                    ,'P_WHERE W2',''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
-F    ('W2'   , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,'OP_NOT W2 CON',''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VT OP_RELA WW CON' ,'WW OP_RELA VT CON','WW OP_RELA VT CON' ,'WW OP_RELA VT CON' ,''  ),
+F    ('W2'   , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,'OP_NOT W2 CON',''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VP OP_RELA WW CON' ,'RAW OP_RELA VP CON','RAW OP_RELA VP CON' ,'RAW OP_RELA VP CON' ,''  ),
 G    ('WW'   , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,'N'                ,'N'                 ,'CHAR'              ,''  ),
 H    ('CON'  , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,'AND W2'      ,'OR W2'      ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
 I    ('V'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           , ''                        ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VAR'               ,''                 ,''                  ,''                  ,''  ),
