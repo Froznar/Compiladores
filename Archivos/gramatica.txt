@@ -1,17 +1,18 @@
-ALL  -> S | I | D | U
+ALL  -> SS | I | D | U
 
 //VARIABLES
 N   -> NUMB_INT OP_RELA N | NUMB_FLOAT OP_RELA N
+    $ N ya respeta tipos numericos
 RAW -> NUMB_INT | NUMB_FLOAT | CHAR
 V   -> VAR
 VP  -> VAR VT
-VT  -> S_PUNTO V | vacio
+VT  -> S_PUNTO VAR | vacio//cambio vp-var
 VC  -> VP VC'
 VC'  -> S_COMA VC | vacio
 
 //SELECT
 S   -> P_SELECT S'
-S'  -> S_ASTER P_FROM V | VP P_FROM V
+S'  -> S_ASTER P_FROM V | VC P_FROM V//cambio vp-vc
 SS  -> S SS'
 SS' -> W | J | vacio
 
@@ -33,16 +34,32 @@ UU -> S_COMA U' | vacio
 W   -> P_WHERE W'
 W'  -> VT OP_RELA WW CON | WW OP_RELA VT CON | P_NOT W' CON
 CON -> AND W' | OR W' |vacio
-WW  -> N | CHAR
+WW  -> N | CHAR //remplazar con RAW
 
+    $ si es un operador aritmetico el valor debe ser numerico
+    $ si es  "=" solo compara
 ++NOTA Las comparaciones se hacen de izquierda a derecha, no hay parentesis
 
 //INNER JOIN
 J  -> P_INNER P_JOIN V P_ON W'
 
 //MAS
-GROUP BY
-OPERACIONES CON VAR --> prob no
+//GROUP BY
+GB  -> P_GROUP_BY VC
+//ORDER BY
+OB  -> P_GROUP_BY VC
+
+//COUNT
+Co  -> P_COUNT (VP)
+//AVG
+Av  -> P_AVG (VP)
+    $ debe ser numerica
+
+//SUM
+Su  -> P_SUM (VP)
+    $ debe ser numerica
+
+
 
 
 

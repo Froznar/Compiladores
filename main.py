@@ -21,7 +21,6 @@ TOKENS = (
 ##    ('P_RIGHT', re.compile('RIGHT|right')),
 ##    ('P_HAVING', re.compile('HAVING|having')),
 ##    ('P_GROUP_BY', re.compile('GROUP BY|group by')),
-##    ('P_ORDER_BY', re.compile('ORDER BY|order by')),    
     ('S_ASTER', re.compile('\*')),
     ('S_COMA', re.compile(',')),
     ('S_PUNTO', re.compile('\.')),
@@ -37,7 +36,7 @@ TOKENS = (
     ('CHAR', re.compile('"[a-zA-Z0-9]+"')),
     ('VAR', re.compile('[a-zA-Z0-9]+$'))
 )
-
+## count average and sum
 
 TABLA_SINTACTICA = (
     ('@'    , 'P_SELECT'   , 'P_INSERT'                                   , 'P_UPDATE'             , 'P_DELETE'           , 'P_WHERE'  , 'P_FROM'     , 'P_INTO'    , 'VALUES'   , 'P_SET'  , 'P_ON'    , 'P_JOIN'     , 'P_INNER'                 , 'OP_RELA' , 'OP_NOT'      , 'OP_AND'     , 'OP_OR'     , 'S_COMA'    , 'S_ASTER'         ,'S_PUNTO'          ,'S_P_AB'      ,'S_P_CE'            ,   'VAR'            , 'NUMB_FLOAT'      ,'NUMB_INT'          ,'CHAR'              , '$'),
@@ -50,9 +49,9 @@ TABLA_SINTACTICA = (
     ('F'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,'OP_NOT F H'   ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'J OP_RELA G H'     ,'G OP_RELA J H'    ,'G OP_RELA J H'     ,'G OP_RELA J H'     ,''  ),
     ('G'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,'N'                ,'N'                 ,'CHAR'              ,''  ),
     ('H'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,'AND F'       ,'OR F'       ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,'vacio'  ),
-    ('I'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           , ''                        ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VAR'               ,''                 ,''                  ,''                  ,''  ),
+    ('I'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           , ''                        ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VAR'               ,''                 ,''                  ,''                  ,'vacio'  ),
     ('J'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'VAR K'            ,''                 ,''                  ,''                  ,''  ),
-    ('K'    , ''           ,''                                            ,''                      ,''                    ,''          ,'vacio'       ,''           ,''          ,''        ,''         , ''           ,''                         ,'vacio'    ,''             ,''            ,''           ,''           ,''                 ,'S_PUNTO VAR'      ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
+    ('K'    , ''           ,''                                            ,''                      ,''                    ,''          ,'vacio'       ,''           ,''          ,''        ,''         , ''           ,''                         ,'vacio'    ,''             ,''            ,''           ,'vacio'      ,''                 ,'S_PUNTO VAR'      ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,'vacio'  ),
     ('L'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,'J M  '             ,''                 ,''                  ,''                  ,''  ),
     ('M'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         , ''           ,''                         ,''         ,''             ,''            ,''           ,'S_COMA L'   ,''                 ,''                 ,''            ,''                  ,''                  ,''                 ,''                  ,''                  ,''  ),
     ('N'    , ''           ,''                                            ,''                      ,''                    ,''          ,''            ,''           ,''          ,''        ,''         ,''            ,''                         ,''         ,''             ,''            ,''           ,''           ,''                 ,''                 ,''            ,''                  ,''                  ,'NUM_FLOAT'        ,'NUM_INT'           ,''                  ,''  ),
@@ -90,18 +89,25 @@ def locate_in_table(nt,t):
         return TABLA_SINTACTICA[posy][posx]
 
 id = 0
-
+acceptar = False
 def add_in_pila(express, mistokens, xpila, noterminal):    
     global id
-    if id < len(mistokens)-1 :
-       # print('ELEMENTO ',express)
+    if id < len(mistokens) :
+        print('ELEMENTO ',express)
         for s in express.split(' '):
             xpila.xpush(s)
-            if not xpila.estaVacia():                
-                if len(s) == 1:
+            if not xpila.estaVacia():
+                if (s=='ERROR'):
+                    print('Error de sintaxis en el token: ', mistokens[id])
+                    id = id + 1
+                elif len(s) == 1:
                     express = locate_in_table(s,mistokens[id])
+                    xpila.xpop()
                     add_in_pila(express, mistokens, xpila, s)
                 elif xpila.last() == 'vacio':
+                    if(s== '$'):
+                        acceptar = True
+                        print('Finalizar')
                     print('correcto: ',xpila.xpop())
                 elif xpila.last() == mistokens[id]:
                     print('correcto: ',xpila.xpop())
@@ -294,6 +300,7 @@ def main():
     while x!=None:
         mistokens.append(x.token)
         x=x.next;
+    mistokens.append('$')
     for i in mistokens:
         print(i)
     print("==============================")       
