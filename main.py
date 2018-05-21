@@ -23,7 +23,7 @@ TOKENS = (
 ##    ('P_GROUP_BY', re.compile('GROUP BY|group by')),
     ('S_ASTER', re.compile('\*')),
     ('S_COMA', re.compile(',')),
-    ('S_PUNTO', re.compile('\.')),
+    ('S_PUNTO', re.compile('^[.]$')),
     ('S_P_AB', re.compile('\(')),
     ('S_P_CE', re.compile('\)')),
     ('OP_AND', re.compile('AND|and')),
@@ -32,9 +32,9 @@ TOKENS = (
     ('OP_RELA', re.compile('=|<|>|<=|>=|<>')),
     ('OP_ARIT', re.compile('\+|-|/|%')),
     ('NUMB_FLOAT', re.compile('[0-9]+.[0-9]+')),
-    ('NUMB_INT', re.compile('[0-9]+')),
-    ('CHAR', re.compile('"[a-zA-Z0-9]+"')),
-    ('VAR', re.compile('[a-zA-Z0-9]+$'))
+    ('NUMB_INT', re.compile('^[0-9]')),
+    ('CHAR', re.compile('^[a-zA-Z0-9]+"')),
+    ('VAR', re.compile('^[a-zA-Z]+[a-zA-Z0-9]*$'))
 )
 ## count average and sum
 
@@ -173,13 +173,23 @@ def main():
         l = linea2[i];
         if hay_punto.match(palabras2[i]):
             cont = 0
+            doterror=False
             for j in palabras2[i].split("."):#Agregar exepcion para numeros decimales
-                palabras3.append(j)
-                linea3.append(l)
-                cont += 1
-                if cont < len(palabras2[i].split(".")):
-                    palabras3.append(".")
+                if j != '':                    
+                    palabras3.append(j)
                     linea3.append(l)
+                    cont += 1
+                    if cont < len(palabras2[i].split(".")):
+                        palabras3.append(".")
+                        linea3.append(l)
+                else:
+                    doterror=True
+                    break
+            if doterror == True: 
+                palabras3.append(palabras2[i])
+                linea3.append(l)
+
+                
         else:
             palabras3.append(palabras2[i])
             linea3.append(l)
@@ -301,21 +311,16 @@ def main():
         mistokens.append(x.token)
         x=x.next;
     mistokens.append('$')
+
     for i in mistokens:
+        print(i)
+    for i in linea4:
         print(i)
     print("==============================")       
 
- 
+    ##Analizador Lexico
+    
 
-    if continuar_sintatico == True:
-        it = Lista
-        noterminal = 'S'
-        it = Lista.next
-        express = locate_in_table(noterminal,mistokens[0])
-        if express == 'ERROR':
-            print ('Error: no es posible accesar ',noterminal,' hacia ', mistokens[0])
-        else:
-            add_in_pila(express, mistokens, xpila, noterminal)
 
 
 

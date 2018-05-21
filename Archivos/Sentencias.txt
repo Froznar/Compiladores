@@ -1,2 +1,3 @@
 /* comment */
-select * from mytabla where a < 100
+select * from mytabla
+where a < .0
