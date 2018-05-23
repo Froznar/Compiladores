@@ -3,24 +3,33 @@ ALL  -> SS | I | D | U
 //VARIABLES
 N   -> NUMB_INT OP_RELA N | NUMB_FLOAT OP_RELA N
     $ N ya respeta tipos numericos
+	$ Perminto operaciones entre float y int, si pasa es float
 RAW -> NUMB_INT | NUMB_FLOAT | CHAR
 V   -> VAR
 VP  -> VAR VT
 VT  -> S_PUNTO VAR | vacio//cambio vp-var
 VC  -> VP VC'
 VC'  -> S_COMA VC | vacio
+	$VAR es tabla
+	$VAR.VAR es tabla.campo
+	$ , separa solo campos
+	
+
 
 //SELECT
 S   -> P_SELECT S'
 S'  -> S_ASTER P_FROM V | VC P_FROM V//cambio vp-vc
 SS  -> S SS'
 SS' -> W | J | vacio
+	
+
 
 //INSERT
 I  -> P_INSERT P_INTO V P_VALUES S_P_AB I' S_P_CE
 I' -> RAW II
 II -> S_COMA I' | vacio
 ++NOTA: No se permiten campos vacios, por ello no es necesario indicar los campos
+	$los datos insertados deben ser del miso tipo del campo
 
 //DELETE
 D  -> P_DELETE P_FROM V W
@@ -29,13 +38,16 @@ D  -> P_DELETE P_FROM V W
 U  -> P_UPDATE V P_SET U' W
 U' -> VT OP_RELA RAW UU
 UU -> S_COMA U' | vacio
+	$V debe ser tabla
+	$El OP_RELA debe ser "="
 
 //WHERE
 W   -> P_WHERE W'
 W'  -> VT OP_RELA WW CON | WW OP_RELA VT CON | P_NOT W' CON
 CON -> AND W' | OR W' |vacio
 WW  -> N | CHAR //remplazar con RAW
-
+	$ VT debe ser un campo VAR o VAR.VAR
+	$ El valor de del RAW
     $ si es un operador aritmetico el valor debe ser numerico
     $ si es  "=" solo compara
 ++NOTA Las comparaciones se hacen de izquierda a derecha, no hay parentesis
